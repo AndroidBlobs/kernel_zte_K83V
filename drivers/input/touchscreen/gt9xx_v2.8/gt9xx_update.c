@@ -30,7 +30,7 @@
 
 #define FIRMWARE_NAME_LEN_MAX		256
 #define GOODIX_FIRMWARE_FILE_NAME	"goodix_firmware.bin"
-#define GOODIX_CONFIG_FILE_NAME		"goodix_config.cfg"
+#define GOODIX_CONFIG_FILE_NAME		"goodix_config_00.cfg"
 
 #define FW_HEAD_LENGTH			14
 #define FW_SECTION_LENGTH		0x2000	/*  8K */
@@ -462,6 +462,7 @@ static int gup_update_config(struct i2c_client *client)
 	file_config = kzalloc(GTP_CONFIG_MAX_LENGTH + GTP_ADDR_LENGTH,
 			      GFP_KERNEL);
 	if (!file_config) {
+		dev_err(&ts->client->dev, "failed alloc memory");
 		ret = -ENOMEM;
 		goto cfg_fw_err;
 	}
@@ -664,10 +665,11 @@ static u8 gup_burn_proc(struct i2c_client *client, u8 *burn_buf,
 static u8 gup_load_section_file(u8 *buf, u32 offset, u16 length, u8 set_or_end)
 {
 	if (!update_msg.fw_data ||
-	    update_msg.fw_total_len < FW_HEAD_LENGTH + offset + length) {
-		pr_err("<<-GTP->> cannot load section data. fw_len=%d read end=%d\n",
-		update_msg.fw_total_len,
-		FW_HEAD_LENGTH + offset + length);
+	    update_msg.fw_total_len < offset + length) {
+		dev_err(&i2c_connect_client->dev,
+			"cannot load section data. fw_len=%d read end=%d\n",
+			update_msg.fw_total_len,
+			FW_HEAD_LENGTH + offset + length);
 		return FAIL;
 	}
 

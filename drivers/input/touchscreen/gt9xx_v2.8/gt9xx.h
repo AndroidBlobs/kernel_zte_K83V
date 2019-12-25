@@ -50,6 +50,8 @@
 #endif
 #include <linux/usb.h>
 #include <linux/power_supply.h>
+#include "tpd_sys.h"
+#include "gt9xx_firmware_config.h"
 
 #define GTP_TOOL_PEN	1
 #define GTP_TOOL_FINGER 2
@@ -372,4 +374,5 @@ extern s32 gtp_fw_startup(struct i2c_client *client);
 extern int gtp_ascii_to_array(const u8 *src_buf, int src_len, u8 *dst_buf);
 /*********** For gt9xx_update End *********/
 
+extern void gtp_tpd_register_fw_class(void);
 #endif /* _GOODIX_GT9XX_H_ */

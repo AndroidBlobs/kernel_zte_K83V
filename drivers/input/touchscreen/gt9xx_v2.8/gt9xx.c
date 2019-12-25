@@ -177,12 +177,12 @@ int gtp_i2c_write(struct i2c_client *client, u8 *buf, int len)
 				address += transfer_length;
 				break;
 			}
-			dev_dbg(&client->dev, "I2C write retry[%d]\n",
+			dev_info(&client->dev, "I2C write retry[%d]\n",
 					retry + 1);
 			usleep_range(2000, 2100);
 		}
 		if (unlikely(retry == RETRY_MAX_TIMES)) {
-			dev_err(&client->dev,
+			dev_info(&client->dev,
 				"I2c write failed,dev:%02x,reg:%04x,size:%u\n",
 				client->addr, address, len);
 			r = -EAGAIN;
@@ -906,7 +906,7 @@ static int gtp_find_valid_cfg_data(struct goodix_ts_data *ts)
 			      CFG_GROUP_LEN(cfg_info_group4),
 			      CFG_GROUP_LEN(cfg_info_group5)};
 
-	dev_dbg(&ts->client->dev,
+	dev_info(&ts->client->dev,
 		"Config Groups\' Lengths: %d, %d, %d, %d, %d, %d",
 		cfg_info_len[0], cfg_info_len[1], cfg_info_len[2],
 		cfg_info_len[3], cfg_info_len[4], cfg_info_len[5]);
@@ -922,21 +922,21 @@ static int gtp_find_valid_cfg_data(struct goodix_ts_data *ts)
 		return -EINVAL;
 	}
 
-	dev_dbg(&ts->client->dev, "Sensor_ID: %d", sensor_id);
+	dev_info(&ts->client->dev, "Sensor_ID: %d", sensor_id);
 	/* parse config data */
 #ifdef CONFIG_OF
-	dev_dbg(&ts->client->dev, "Get config data from device tree\n");
+	dev_info(&ts->client->dev, "Get config data from device tree\n");
 	ret = gtp_parse_dt_cfg(&ts->client->dev,
 			       &cfg->data[GTP_ADDR_LENGTH],
 			       &cfg->length, sensor_id);
 	if (ret < 0) {
-		dev_err(&ts->client->dev,
+		dev_info(&ts->client->dev,
 			"Failed to parse config data form device tree\n");
 		cfg->length = 0;
 		return -EPERM;
 	}
 #else
-	dev_dbg(&ts->client->dev, "Get config data from header file\n");
+	dev_info(&ts->client->dev, "Get config data from header file\n");
 	if ((!cfg_info_len[1]) && (!cfg_info_len[2]) &&
 	    (!cfg_info_len[3]) && (!cfg_info_len[4]) &&
 	    (!cfg_info_len[5])) {
@@ -949,7 +949,7 @@ static int gtp_find_valid_cfg_data(struct goodix_ts_data *ts)
 #endif
 
 	if (cfg->length < GTP_CONFIG_MIN_LENGTH) {
-		dev_err(&ts->client->dev,
+		dev_info(&ts->client->dev,
 			"Failed get valid config data with sensor id %d\n",
 			sensor_id);
 		cfg->length = 0;
@@ -988,7 +988,7 @@ static s32 gtp_init_panel(struct goodix_ts_data *ts)
 				   cfg->data, cfg->length +
 				   GTP_ADDR_LENGTH);
 		if (ret < 0)
-			dev_err(&ts->client->dev, "Read origin Config Failed\n");
+			dev_info(&ts->client->dev, "Read origin Config Failed\n");
 
 		return 0;
 	}
@@ -1000,7 +1000,7 @@ static s32 gtp_init_panel(struct goodix_ts_data *ts)
 	if (ret == SUCCESS) {
 		if (opr_buf[0] != 0xBE) {
 			set_bit(FW_ERROR, &ts->flags);
-			dev_err(&ts->client->dev,
+			dev_info(&ts->client->dev,
 				"Firmware error, no config sent!\n");
 			return -EINVAL;
 		}
@@ -1009,24 +1009,24 @@ static s32 gtp_init_panel(struct goodix_ts_data *ts)
 	ret = gtp_i2c_read_dbl_check(ts->client, GTP_REG_CONFIG_DATA,
 				     &opr_buf[0], 1);
 	if (ret == SUCCESS) {
-		dev_dbg(&ts->client->dev,
+		dev_info(&ts->client->dev,
 			"Config Version: %d; IC Config Version: %d\n",
 			cfg->data[GTP_ADDR_LENGTH], opr_buf[0]);
 		flash_cfg_version = opr_buf[0];
 		drv_cfg_version = cfg->data[GTP_ADDR_LENGTH];
 
-		if (flash_cfg_version < 120 &&
-		    flash_cfg_version > drv_cfg_version)
+		if ((flash_cfg_version < 90 &&
+		    flash_cfg_version > drv_cfg_version) || flash_cfg_version == 100)
 			cfg->data[GTP_ADDR_LENGTH] = 0x00;
 	} else {
-		dev_err(&ts->client->dev,
+		dev_info(&ts->client->dev,
 			"Failed to get ic config version!No config sent\n");
 		return -EPERM;
 	}
 
 	ret = gtp_send_cfg(ts->client);
 	if (ret < 0)
-		dev_err(&ts->client->dev, "Send config error\n");
+		dev_info(&ts->client->dev, "Send config error\n");
 	else
 		usleep_range(10000, 11000); /* 10 ms */
 
@@ -1049,8 +1049,10 @@ static ssize_t gtp_config_read_proc(struct file *file, char __user *page,
 	struct goodix_config_data *cfg = &ts->pdata->config;
 
 	ptr = kzalloc(4096, GFP_KERNEL);
-	if (!ptr)
+	if (!ptr) {
+		dev_err(&ts->client->dev, "Failed alloc memory for config\n");
 		return -ENOMEM;
+	}
 
 	data_len += snprintf(ptr + data_len, 4096 - data_len,
 			     "====init value====\n");
@@ -1145,11 +1147,13 @@ static ssize_t gtp_config_write_proc(struct file *filp,
 
 	temp_buf = kzalloc(count, GFP_KERNEL);
 	if (!temp_buf)
+		dev_err(&ts->client->dev, "failed alloc temp memory");
 		return -ENOMEM;
 
 	file_config = kzalloc(GTP_CONFIG_MAX_LENGTH + GTP_ADDR_LENGTH,
 			      GFP_KERNEL);
 	if (!file_config) {
+		dev_err(&ts->client->dev, "failed alloc config memory");
 		kfree(temp_buf);
 		return -ENOMEM;
 	}
@@ -2034,7 +2038,10 @@ static int gtp_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	/* do NOT remove these logs */
 	dev_info(&client->dev, "GTP Driver Version: %s\n", GTP_DRIVER_VERSION);
 	dev_info(&client->dev, "GTP I2C Address: 0x%02x\n", client->addr);
-
+	if (tpd_fw_cdev.TP_have_registered) {
+		pr_notice("TP have registered by other TP.\n");
+		return -EPERM;
+	}
 	i2c_connect_client = client;
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		dev_err(&client->dev, "Failed check I2C functionality");
@@ -2042,11 +2049,13 @@ static int gtp_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	}
 
 	ts = devm_kzalloc(&client->dev, sizeof(*ts), GFP_KERNEL);
-	if (!ts)
+	if (!ts) {
+		dev_err(&client->dev, "Failed alloc ts memory");
 		return -ENOMEM;
-
+	}
 	pdata = devm_kzalloc(&client->dev, sizeof(*pdata), GFP_KERNEL);
 	if (!pdata) {
+		dev_err(&client->dev, "Failed alloc pdata memory\n");
 		devm_kfree(&client->dev, ts);
 		return -EINVAL;
 	}
@@ -2184,7 +2193,8 @@ static int gtp_probe(struct i2c_client *client, const struct i2c_device_id *id)
 	/* probe init finished */
 	ts->init_done = true;
 	gtp_work_control_enable(ts, true);
-
+	gtp_tpd_register_fw_class();
+	tpd_fw_cdev.TP_have_registered = true;
 	return 0;
 
 exit_powermanager:
