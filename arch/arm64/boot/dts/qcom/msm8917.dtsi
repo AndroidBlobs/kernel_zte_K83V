@@ -172,6 +172,7 @@
 #include "msm-arm-smmu-8917.dtsi"
 #include "msm8917-gpu.dtsi"
 #include "msm8917-vidc.dtsi"
+#include "msm8917-vendor.dtsi"
 
 &soc {
 	#address-cells = <1>;

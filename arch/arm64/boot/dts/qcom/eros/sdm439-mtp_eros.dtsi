@@ -1,0 +1,224 @@
+#include "board-driver.dtsi"
+#include "zte-sdm439-camera-sensor-mtp-eros.dtsi"
+#include "touchscreen-eros.dtsi"
+#include "fingerprint_eros.dtsi"
+#include "dsi-panel-zte-skyworth-ili9881c-qc-6p26-720p-video.dtsi"
+#include "dsi-panel-zte-lead-st7703-cpt-6p26-720p-video.dtsi"
+&mdss_dsi0 {
+	pinctrl-0 = <&mdss_dsi_active &mdss_te_active>;
+	pinctrl-1 = <&mdss_dsi_suspend &mdss_te_suspend>;
+};
+
+&dsi_panel_pwr_supply {
+	qcom,panel-supply-entry@3 {
+		qcom,supply-post-on-sleep = <2>;
+	};
+};
+
+&pm8953_pwm {
+	status = "disable";
+};
+
+&pmx_mdss {
+	mdss_dsi_active: mdss_dsi_active {
+		mux {
+			pins = "gpio60";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio60";
+			drive-strength = <2>; /* 2 mA */
+			bias-disable = <0>; /* no pull */
+			output-high;
+		};
+	};
+
+	mdss_dsi_suspend: mdss_dsi_suspend {
+		mux {
+			pins = "gpio60";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio60";
+			drive-strength = <2>; /* 2 mA */
+			bias-pull-down;
+			input-enable;
+		};
+	};
+};
+
+&mtp_batterydata {
+	#include "zte_p439s01_3100mAh.dtsi"
+};
+
+&soc {
+	charger_policy_service {
+		compatible = "zte,charger-policy-service";
+		policy,enable = <1>;
+		policy,expired-mode-enable = <1>;
+		policy,retry-times = <10>;
+		policy,timeout-seconds = <64800>;/* 18 hours */
+		policy,max-capacity = <70>;
+		policy,min-capacity = <50>;
+		policy,bms-phy-name = "bms";
+		policy,battery-phy-name = "battery";
+	};
+};
+
+&soc {
+	charge_arbitrate_service {
+		compatible = "zte,charge-arbitrate-service";
+		cas,enable = <0>;
+		cas,show-mode-enable = <0>;
+		cas,retry-times = <10>;
+		cas,timeout-seconds = <30>;/*s*/
+		cas,temperature-warm = <430>;
+		cas,temperature-warm-recov = <20>;
+		cas,temperature-cool = <80>;
+		cas,temperature-cool-recov = <20>;
+		cas,normal-topoff = <4>;
+		cas,abnormal-topoff = <8>;
+		cas,max-capacity = <70>;
+		cas,min-capacity = <50>;
+		cas,overstep-times = <3>;
+		cas,bms-phy-name = "bms";
+		cas,battery-phy-name = "battery";
+		cas,fcv-phy = "battery";
+		cas,fcc-phy = "battery";
+		cas,topoff-phy = "battery";
+		cas,recharge-soc-phy = "battery";
+		cas,recharge-voltage-phy = "battery";
+		/* age, fcv, fcc, rech_soc_1st, rech_soc_2st rech_vol_1st, rech_vol_2st **/
+		cas,age-data = <100 4400000 1500000 99 95 0 0
+				95 4380000 1400000 98 94 0 0
+				90 4360000 1300000 97 93 0 0
+				85 4340000 1200000 96 92 0 0
+				80 4320000 1100000 95 91 0 0
+				75 4300000 1000000 94 90 0 0>;
+	};
+};
+
+&pmi632_charger {
+	qcom,usb-icl-ua = <1500000>;
+	qcom,thermal-mitigation
+		= <1500000 1300000 1000000 600000
+			300000 150000>;
+	qcom,auto-recharge-soc = <99>;
+	qcom,hvdcp-disable;
+	qcom,jeita-hysteresis-support;
+
+	/* COOL = 10 DegC, WARM = 45 DegC */
+	qcom,jeita-soft-thresholds = <0x3772 0x12d2>;
+	/* COLD = 0 DegC, HOT = 50 DegC */
+	qcom,jeita-hard-thresholds = <0x45f5 0xFEE>;
+
+	/* COOL = 2 DegC, WARM = 50 DegC */
+	qcom,jeita-cold-hysteresis-thresholds = <0x430E 0xFEE>;
+	/* COLD = 12 DegC, HOT = 45 DegC */
+	qcom,jeita-cool-hysteresis-thresholds = <0x349E 0x12D2>;
+	/* COOL = 10 DegC, WARM = 43 DegC */
+	qcom,jeita-warm-hysteresis-thresholds = <0x3772 0x141E>;
+	/* COLD = 0 DegC, HOT = 48 DegC */
+	qcom,jeita-hot-hysteresis-thresholds = <0x45F5 0x1107>;
+};
+
+&pmi632_qg {
+	qcom,qg-iterm-ma = <150>;
+};
+
+&other_ext_mem  {
+	reg = <0x0 0x84A00000 0x0 0x1E00000>;
+};
+
+&tlmm {
+	/* SAR sensor INT */
+	sx9310_int_active: sx9310_int_active {
+		mux {
+			pins = "gpio44";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio44";
+			drive-strength = <8>;
+			bias-disable;
+			input-enable;
+		};
+	};
+	sx9310_int_suspend: sx9310_int_suspend {
+		mux {
+			pins = "gpio44";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio44";
+			drive-strength = <8>;
+			bias-disable;
+			input-enable;
+		};
+	};
+};
+
+&i2c_5 {
+	status = "okay";
+	sx9310-input@28 {
+		compatible = "zte, sx9310-input";
+		reg = <0x28>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <44 2>;
+		vdd-supply = <&pm8953_l5>;
+		interrupt-names = "sx9310_irq";
+		pinctrl-names = "sx9310_active", "sx9310_sleep";
+		pinctrl-0 = <&sx9310_int_active>;
+		pinctrl-1 = <&sx9310_int_suspend >;
+	};
+};
+
+&int_codec {
+	qcom,msm-mbhc-hphl-swh = <0x1>;
+	qcom,msm-mbhc-gnd-swh = <0x1>;
+	zte,speaker-mode-switch-gpios = <&tlmm 89 0x0>;
+	zte,speaker-mode = "mode1";
+	qcom,audio-routing =
+				"RX_BIAS", "MCLK",
+				"SPK_RX_BIAS", "MCLK",
+				"INT_LDO_H", "MCLK",
+				"RX_I2S_CLK", "MCLK",
+				"TX_I2S_CLK", "MCLK",
+				"MIC BIAS External", "Handset Mic",
+				"MIC BIAS Internal2", "Headset Mic",
+				"MIC BIAS External", "Secondary Mic",
+				"AMIC1", "MIC BIAS External",
+				"AMIC2", "MIC BIAS Internal2",
+				"AMIC3", "MIC BIAS External",
+				"ADC1_IN", "ADC1_OUT",
+				"ADC2_IN", "ADC2_OUT",
+				"ADC3_IN", "ADC3_OUT",
+				"PDM_IN_RX1", "PDM_OUT_RX1",
+				"PDM_IN_RX2", "PDM_OUT_RX2",
+				"PDM_IN_RX3", "PDM_OUT_RX3";
+				/* "WSA_SPK OUT", "VDD_WSA_SWITCH", */
+				/* "SpkrMono WSA_IN", "WSA_SPK OUT"; */
+};
+
+&i2c_5 {
+	pn5xx@29{
+		compatible = "nxp,pn5xx";
+		reg = <0x29>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <17 0>;
+		nxp,pn5xx-irq = <&tlmm 17 0x00>;
+		nxp,pn5xx-ven = <&tlmm 16 0x00>;
+		nxp,pn5xx-fw-dwnld = <&tlmm 130 0x00>;
+		nxp,pn5xx-ese-pwr = <&tlmm 93 0x00>;
+		nxp,pn5xx-clkreq = <&pmi632_gpios 2 0x00>;
+		nxp,clk-src = "BBCLK2";
+		interrupt-names = "nfc_irq";
+		pinctrl-names = "nfc_active","nfc_suspend";
+		pinctrl-0 = <&nfc_int_active &nfc_disable_active>;
+		pinctrl-1 = <&nfc_int_suspend &nfc_disable_suspend>;
+		clocks = <&clock_gcc clk_bb_clk2_pin>;
+		clock-names = "bb_clk2";
+	};
+};
+

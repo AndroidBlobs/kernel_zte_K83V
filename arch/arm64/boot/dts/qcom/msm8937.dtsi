@@ -171,6 +171,7 @@
 #include "msm8937-gpu.dtsi"
 #include "msm8937-mdss.dtsi"
 #include "msm8937-mdss-pll.dtsi"
+#include "msm8937-vendor.dtsi"
 
 &soc {
 	#address-cells = <1>;

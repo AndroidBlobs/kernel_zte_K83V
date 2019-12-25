@@ -72,7 +72,7 @@
 };
 
 &ibb_regulator {
-	qcom,qpnp-ibb-discharge-resistor = <32>;
+	qcom,qpnp-ibb-discharge-resistor = <300>;
 };
 
 &mdss_dsi0 {

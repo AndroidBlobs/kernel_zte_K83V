@@ -174,20 +174,31 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 
-			qcom,iterm-ma = <100>;
-			qcom,float-voltage-mv = <4200>;
-			qcom,resume-delta-mv = <200>;
+			qcom,float-voltage-mv = <4400>;
+			qcom,resume-delta-mv = <100>;
+			qcom,fastchg-current-ma = <2000>;
+			qcom,thermal-mitigation = <2000 1000 500 0>;
+			qcom,charging-timeout-mins = <768>;
+			qcom,iterm-ma = <200>;
+			qcom,precharging-timeout-mins = <24>;
+			qcom,float-voltage-comp-warm = <11>;
+			qcom,float-voltage-comp-cool = <0>;
+			qcom,float-voltage-comp = <0>;
+			qcom,fastchg-current-comp = <700>;
+			qcom,dcin-vadc = <&pmi8950_vadc>;
+			qcom,vchg_sns-vadc = <&pmi8950_vadc>;
+			qcom,bmd-pin-src = "bpd_thm";
+			qcom,vchg-adc-channel-id = <3>;
 			qcom,chg-inhibit-fg;
 			qcom,rparasitic-uohm = <100000>;
 			qcom,bms-psy-name = "bms";
-			qcom,thermal-mitigation = <1500 700 600 0>;
 			qcom,parallel-usb-min-current-ma = <1400>;
 			qcom,parallel-usb-9v-min-current-ma = <900>;
 			qcom,parallel-allowed-lowering-ma = <500>;
 			qcom,pmic-revid = <&pmi8950_revid>;
 			qcom,force-aicl-rerun;
 			qcom,aicl-rerun-period-s = <180>;
-			qcom,autoadjust-vfloat;
+			/* qcom,autoadjust-vfloat; */
 			dpdm-supply = <&qusb_phy>;
 
 			qcom,chgr@1000 {
@@ -289,7 +300,11 @@
 			compatible = "qcom,qpnp-fg";
 			#address-cells = <1>;
 			#size-cells = <1>;
-			qcom,resume-soc = <95>;
+			qcom,resume-soc = <99>;
+			qcom,thermal-coefficients = [EC 85 75 4A FC 35];
+			qcom,hold-soc-while-full;
+			qcom,fg-cc-cv-threshold-mv = <4390>;
+			qcom,cold-hot-jeita-hysteresis = <20 20 20 20>;
 			status = "okay";
 			qcom,bcl-lm-threshold-ma = <127>;
 			qcom,bcl-mh-threshold-ma = <405>;
@@ -377,6 +392,12 @@
 			qcom,inhibit-derating-ua = <550000>;
 		};
 
+		qcom,leds@a000 {
+			compatible = "qcom,leds-qpnp";
+			reg = <0xa000 0x100>;
+			label = "mpp";
+		};
+
 		qcom,leds@a100 {
 			compatible = "qcom,leds-qpnp";
 			reg = <0xa100 0x100>;
@@ -391,13 +412,19 @@
 		#size-cells = <1>;
 
 		pmi8950_pwm: pwm@b000 {
-			status = "disabled";
 			compatible = "qcom,qpnp-pwm";
 			reg = <0xb000 0x100>;
 			reg-names = "qpnp-lpg-channel-base";
 			qcom,channel-id = <0>;
 			qcom,supported-sizes = <6>, <9>;
+			qcom,dtest-line = <2>;
+			qcom,dtest-output = <2>;
+			qcom,period = <4000000>;
 			#pwm-cells = <2>;
+			qcom,pwm {
+				qcom,duty = <2000000>;
+				label = "pwm";
+			};
 		};
 
 		labibb: qpnp-labibb-regulator {

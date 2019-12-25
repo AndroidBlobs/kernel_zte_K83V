@@ -1,0 +1,50 @@
+/*
+ * this file is ued to change qualcomm dtsi which can't be changed by overlay
+ * such as /delete-node/ /delete-property/ and alises
+ */
+
+
+/ {
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/*add by ZTE_BOOT*/
+		ramoops_men: ramoops_region@b0000000 {
+			compatible = "removed_ramoops_memory";
+			no-map;
+			reg = <0 0xb0000000 0 0x200000>;
+		};
+	};
+};
+
+&soc {
+	qcom,msm-vendor-imem@8600b1c {
+		reg = <0x08600B1C 0x480>; /* Address and size of IMEM */
+		ranges = <0x0 0x08600B1C 0x480>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		board_id@60 {
+			compatible = "qcom,msm-imem-board-id";
+			reg = <0x60 4>;
+		};
+
+		ddr_memory_manufacture@d8 {
+			compatible = "qcom,msm-imem-ddr_memory_manufacture";
+			reg = <0xd8 4>;
+		};
+
+		ddr_memory_type@dc {
+			compatible = "qcom,msm-imem-ddr_memory_type";
+			reg = <0xdc 4>;
+		};
+
+		ddr_memory_size@e0 {
+			compatible = "qcom,msm-imem-ddr_memory_size";
+			reg = <0xe0 4>;
+		};
+	};
+
+};

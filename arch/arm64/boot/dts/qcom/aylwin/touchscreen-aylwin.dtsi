@@ -1,0 +1,173 @@
+/*for touchscreen and key*/
+
+&tlmm {
+	/* add pingrp for touchscreen */
+	ts_rst_default: ts_rst_default {
+		mux {
+			pins = "gpio64";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio64";
+			drive-strength = <2>;
+			/*bias-pull-up;*/
+			output-enable;
+			bias-disable;
+		};
+	};
+
+	ts_rst_output_high: ts_rst_output_high {
+		mux {
+			pins = "gpio64";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio64";
+			output-high;
+		};
+	};
+
+	ts_rst_output_low: ts_rst_output_low {
+		mux {
+			pins = "gpio64";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio64";
+			output-low;
+		};
+	};
+
+	ts_rst_input: ts_rst_input {
+		mux {
+			pins = "gpio64";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio64";
+			drive-strength = <2>;
+			input-enable;
+			bias-disable;
+		};
+	};
+
+	ts_int_default: ts_int_default {
+		mux {
+			pins = "gpio65";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio65";
+			drive-strength = <2>;
+			/*bias-pull-up;*/
+			input-enable;
+			bias-disable;
+		};
+	};
+
+	ts_int_output_high: ts_int_output_high {
+		mux {
+			pins = "gpio65";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio65";
+			output-high;
+		};
+	};
+
+	ts_int_output_low: ts_int_output_low {
+		mux {
+			pins = "gpio65";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio65";
+			output-low;
+		};
+	};
+
+	ts_int_input: ts_int_input {
+		mux {
+			pins = "gpio65";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio65";
+			drive-strength = <2>;
+			input-enable;
+			bias-disable;
+		};
+	};
+};
+
+&i2c_3 { /* BLSP1 QUP3 */
+	status = "okay";
+	gt9xx@5d {
+		compatible = "goodix,gt9xx";
+		reg = <0x5d>;
+		status = "okay";
+		interrupt-parent = <&tlmm>;
+		interrupts = <65 0x2800>;
+		vdd_ana-supply = <&pm8937_l17>;
+		vcc_i2c-supply = <&pm8937_l6>;
+		pinctrl-names = "gdix_ts_int_default", "gdix_ts_int_output_low","gdix_ts_int_output_high",
+				"gdix_ts_int_input", "gdix_ts_rst_default", "gdix_ts_rst_output_low",
+				"gdix_ts_rst_output_high", "gdix_ts_rst_input";
+		pinctrl-0 = <&ts_int_default>;
+		pinctrl-1 = <&ts_int_output_low>;
+		pinctrl-2 = <&ts_int_output_high>;
+		pinctrl-3 = <&ts_int_input>;
+		pinctrl-4 = <&ts_rst_default>;
+		pinctrl-5 = <&ts_rst_output_low>;
+		pinctrl-6 = <&ts_rst_output_high>;
+		pinctrl-7 = <&ts_rst_input>;
+
+		reset-gpios = <&tlmm 64 0x0>;
+		irq-gpios = <&tlmm 65 0x2800>;
+		irq-flags = <2>;
+		goodix,auto-update = <1>;
+		touchscreen-max-id = <11>;
+		touchscreen-size-x = <800>;
+		touchscreen-size-y = <1280>;
+		touchscreen-max-w = <512>;
+		touchscreen-max-p = <512>;
+		touchscreen-key-map = <172>, <158>; /*KEY_HOMEPAGE=172, KEY_BACK=158，KEY_MENU=139*/
+
+		goodix,slide-wakeup = <0>;
+		goodix,type-a-report = <0>;
+		goodix,driver-send-cfg = <1>;
+		goodix,resume-in-workqueue = <0>;
+		goodix,int-sync = <1>;
+		goodix,swap-x2y = <0>;
+		goodix,esd-protect = <1>;
+		goodix,auto-update-cfg = <0>;
+		goodix,power-off-sleep = <1>;
+		goodix,pen-suppress-finger = <0>;
+		goodix,cfg-group0 = [
+			44 20 03 00 05 0A 35 00
+			01 08 2B 08 53 37 03 05
+			00 00 00 02 22 22 04 16
+			18 1C 14 90 30 CC 28 2A
+			C7 12 00 00 00 5B 33 1D
+			00 00 00 00 00 03 00 00
+			00 30 03 1E 2F 41 E5 02
+			42 41 00 04 8C 1F 00 87
+			22 00 83 25 00 7F 29 00
+			7F 2C 00 7E 00 00 00 00
+			00 00 00 00 00 00 00 00
+			14 19 03 23 14 00 31 06
+			0F 14 28 0F 50 28 00 85
+			00 40 02 11 00 00 00 00
+			1D 1C 1B 1A 19 18 17 16
+			15 14 11 10 0F 0E 0D 0C
+			09 08 07 06 05 04 01 00
+			00 00 00 00 00 00 2A 29
+			28 27 26 25 24 23 22 21
+			20 1F 1E 1C 1B 19 14 13
+			12 11 10 0F 0E 0D 0C 0A
+			08 07 06 04 02 00 00 00
+			00 00 00 00 00 00 00 00 E9 01
+		];
+	};
+};

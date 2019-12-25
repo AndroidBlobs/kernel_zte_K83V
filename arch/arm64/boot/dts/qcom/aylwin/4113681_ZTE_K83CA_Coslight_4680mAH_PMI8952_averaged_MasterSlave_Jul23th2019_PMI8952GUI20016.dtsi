@@ -1,0 +1,49 @@
+
+qcom,4113681_zte_k83ca_coslight_4680mah_pmi8952_averaged_masterslave_jul23th2019 {
+	/* #4113681_ZTE_K83CA_Coslight_4680mAH_PMI8952_averaged_MasterSlave_Jul23th2019*/
+	qcom,max-voltage-uv = <4400000>;
+	qcom,nom-batt-capacity-mah = <4500>;
+	qcom,batt-id-kohm = <0>;
+	qcom,battery-beta = <3440>;
+	qcom,battery-type = "4113681_zte_k83ca_coslight_4680mah_pmi8952_averaged_masterslave_jul23th2019";
+	qcom,chg-rslow-comp-c1 = <3222402>;
+	qcom,chg-rslow-comp-c2 = <5012339>;
+	qcom,chg-rs-to-rslow = <560452>;
+	qcom,chg-rslow-comp-thr = <0xAF>;
+	qcom,checksum = <0xF0AF>;
+	qcom,gui-version = "PMI8950GUI - 2.0.0.16";
+	qcom,fg-profile-data = [
+		 24 88 E1 7F
+		 F0 82 01 7D
+		 42 83 82 71
+		 95 7C AC 79
+		 D9 81 81 9B
+		 5B BE 51 CB
+		 93 12 E3 83
+		 6B 7C B0 80
+		 55 76 32 83
+		 FA 79 25 8C
+		 9D 88 22 82
+		 6A 9B D5 BF
+		 BA D1 66 0E
+		 6C 12 57 59
+		 14 70 71 FD
+		 6F 46 DD 37
+		 18 41 00 00
+		 6F 4C 52 40
+		 1E 32 00 00
+		 00 00 00 00
+		 00 00 00 00
+		 F6 68 60 68
+		 61 69 38 88
+		 95 74 60 69
+		 BD 5F 31 80
+		 32 6F 3D 68
+		 F7 6E EC A9
+		 18 CB 5B D8
+		 5D A0 71 0C
+		 28 00 FF 36
+		 F0 11 30 03
+		 00 00 00 0C
+	];
+};

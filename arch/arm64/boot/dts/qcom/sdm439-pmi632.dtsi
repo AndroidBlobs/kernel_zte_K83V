@@ -144,11 +144,6 @@
 				hysteresis = <4000>;
 				type = "passive";
 			};
-			quiet_cpus_439_trip: quiet-cpus-trip {
-				temperature = <48000>;
-				hysteresis = <0>;
-				type = "passive";
-			};
 			quiet_modem_439_trip3: quiet-modem-trip2 {
 				temperature = <48000>;
 				hysteresis = <2000>;
@@ -157,11 +152,6 @@
 			quiet_batt_439_trip1: quiet-batt-trip1 {
 				temperature = <48000>;
 				hysteresis = <4000>;
-				type = "passive";
-			};
-			quiet_gpu_439_trip: quiet-gpu-trip {
-				temperature = <50000>;
-				hysteresis = <0>;
 				type = "passive";
 			};
 			quiet_batt_439_trip2: quiet-batt-trip2 {
@@ -174,7 +164,6 @@
 				hysteresis = <2000>;
 				type = "passive";
 			};
-
 			quiet_batt_439_trip4: quiet-batt-trip4 {
 				temperature = <54000>;
 				hysteresis = <2000>;
@@ -193,54 +182,6 @@
 		};
 
 		cooling-maps {
-			skin_cpu0 {
-				trip = <&quiet_cpus_439_trip>;
-				/* throttle from fmax to 1497600KHz */
-				cooling-device = <&CPU0 THERMAL_NO_LIMIT
-							(THERMAL_MAX_LIMIT-3)>;
-			};
-			skin_cpu1 {
-				trip = <&quiet_cpus_439_trip>;
-				cooling-device = <&CPU1 THERMAL_NO_LIMIT
-							(THERMAL_MAX_LIMIT-3)>;
-			};
-			skin_cpu2 {
-				trip = <&quiet_cpus_439_trip>;
-				cooling-device = <&CPU2 THERMAL_NO_LIMIT
-							(THERMAL_MAX_LIMIT-3)>;
-			};
-			skin_cpu3 {
-				trip = <&quiet_cpus_439_trip>;
-				cooling-device = <&CPU3 THERMAL_NO_LIMIT
-							(THERMAL_MAX_LIMIT-3)>;
-			};
-			skin_cpu4 {
-				trip = <&quiet_cpus_439_trip>;
-				/* throttle from fmax to 1171200KHz */
-				cooling-device = <&CPU4 THERMAL_NO_LIMIT
-							(THERMAL_MAX_LIMIT-3)>;
-			};
-			skin_cpu5 {
-				trip = <&quiet_cpus_439_trip>;
-				cooling-device = <&CPU5 THERMAL_NO_LIMIT
-							(THERMAL_MAX_LIMIT-3)>;
-			};
-			skin_cpu6 {
-				trip = <&quiet_cpus_439_trip>;
-				cooling-device = <&CPU6 THERMAL_NO_LIMIT
-							(THERMAL_MAX_LIMIT-3)>;
-			};
-			skin_cpu7 {
-				trip = <&quiet_cpus_439_trip>;
-				cooling-device = <&CPU7 THERMAL_NO_LIMIT
-							(THERMAL_MAX_LIMIT-3)>;
-			};
-			skin_gpu {
-				trip = <&quiet_gpu_439_trip>;
-				/* throttle from fmax to 510000000Hz */
-				cooling-device = <&msm_gpu THERMAL_NO_LIMIT
-							(THERMAL_MAX_LIMIT-2)>;
-			};
 			modem_proc_lvl1 {
 				trip = <&quiet_modem_439_trip1>;
 				cooling-device = <&modem_proc 1 1>;

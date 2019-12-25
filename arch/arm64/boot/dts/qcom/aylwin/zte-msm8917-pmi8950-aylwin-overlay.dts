@@ -1,0 +1,85 @@
+/*
+ * Copyright (c) 2018, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+/plugin/;
+
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include "touchscreen-aylwin.dtsi"
+/ {
+	model = "Qualcomm Technologies, Inc. MSM8917-MTP";
+	qcom,board-id = <8 0>;
+};
+
+&blsp1_uart1 {
+	status = "ok";
+};
+/*
+&vendor {
+	mtp_batterydata: qcom,battery-data {
+		qcom,batt-id-range-pct = <15>;
+		#include "../batterydata-itech-3000mah.dtsi"
+		#include "../batterydata-ascent-3450mAh.dtsi"
+	};
+};*/
+
+&mtp_batterydata {
+	#include "3942768_ZTE_K83V_SCUD_4500mAH_PMI8952_averaged_MasterSlave_Mar27th2019_PMI8952GUI20016.dtsi"
+	#include "3953874_ZTE_K83CA_Coslight_4630mAH_PMI8952_averaged_MasterSlave_Apr20th2019_PMI8952GUI20016.dtsi"
+	#include "4113681_ZTE_K83CA_Coslight_4680mAH_PMI8952_averaged_MasterSlave_Jul23th2019_PMI8952GUI20016.dtsi"
+};
+
+&qpnp_fg {
+	qcom,battery-data = <&mtp_batterydata>;
+	qcom,fg-chg-iterm-ma = <150>;
+	qcom,fg-iterm-ma = <200>;
+	qcom,cold-bat-decidegc = <0>;
+	qcom,cool-bat-decidegc = <100>;
+	qcom,warm-bat-decidegc = <450>;
+	qcom,hot-bat-decidegc  = <500>;
+	qcom,fg-cutoff-voltage-mv = <3400>;
+};
+
+&qpnp_smbcharger {
+	qcom,battery-data = <&mtp_batterydata>;
+
+	/* qcom,jeita-temp-hard-limit = <0>; */
+
+	/* fcv 4.4V */
+	qcom,float-voltage-mv = <4400>;
+
+	/* warm fcv 4.1V */
+	qcom,float-voltage-comp-warm = <11>;
+
+	/* cool and normal fcv 4.4V */
+	qcom,float-voltage-comp-cool = <0>;
+	qcom,float-voltage-comp = <0>;
+
+	/* fcc 2200ma less than 0.5C(2250ma) */
+	qcom,fastchg-current-ma = <2100>;
+
+	/* warm and cool fcc 1200ma less than 0.3C(1350ma) */
+	qcom,fastchg-current-comp = <1200>;
+
+	/* icl 2000ma less than 2100ma(charger) */
+	qcom,thermal-mitigation = <2100 1000 500 0>;
+
+	/*this for K83CA whose the fast current is 1500*/
+	qcom,thermal-mitigation_ca = <1500 1000 500 0>;
+
+	qcom,iterm-ma = <150>;
+
+	qcom,hvdcp-disable;
+};

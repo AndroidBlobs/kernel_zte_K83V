@@ -1,0 +1,106 @@
+/*
+ * this file is ued to change qualcomm dtsi which can't be changed by overlay
+ * such as /delete-node/ /delete-property/ and alises
+ */
+
+&soc {
+	gpio_keys {
+		/delete-node/ camera_focus;
+		/delete-node/ camera_snapshot;
+	};
+
+	/delete-node/ qseecom@85b00000;
+
+	qcom_seecom: qseecom@84A00000 {
+		compatible = "qcom,qseecom";
+		reg = <0x84A00000 0x1900000>;
+		reg-names = "secapp-region";
+		qcom,hlos-num-ce-hw-instances = <1>;
+		qcom,hlos-ce-hw-instance = <0>;
+		qcom,qsee-ce-hw-instance = <0>;
+		qcom,disk-encrypt-pipe-pair = <2>;
+		qcom,support-fde;
+		qcom,commonlib64-loaded-by-uefi;
+		qcom,msm-bus,name = "qseecom-noc";
+		qcom,msm-bus,num-cases = <4>;
+		qcom,msm-bus,num-paths = <1>;
+		qcom,support-bus-scaling;
+		qcom,msm-bus,vectors-KBps =
+			<55 512 0 0>,
+			<55 512 0 0>,
+			<55 512 120000 1200000>,
+			<55 512 393600 3936000>;
+		clocks = <&clock_gcc clk_crypto_clk_src>,
+			<&clock_gcc clk_gcc_crypto_clk>,
+			<&clock_gcc clk_gcc_crypto_ahb_clk>,
+			<&clock_gcc clk_gcc_crypto_axi_clk>;
+		clock-names = "core_clk_src", "core_clk",
+			"iface_clk", "bus_clk";
+		qcom,ce-opp-freq = <100000000>;
+	};
+
+};
+
+&sdc2_cd_on {
+	config {
+		/delete-property/ bias-pull-up;
+	};
+};
+/ {
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/*add by ZTE_BOOT*/
+		ramoops_men: ramoops_region@b0000000 {
+			compatible = "removed_ramoops_memory";
+			no-map;
+			reg = <0 0xb0000000 0 0x200000>;
+		};
+	};
+};
+
+&mdss_dsi0 {
+	/delete-property/qcom,platform-bklight-en-gpio;
+};
+
+&mdss_mdp {
+	/delete-node/qcom,mdss_dsi_sim_video;
+	/delete-node/qcom,mdss_dsi_sim_cmd;
+	/delete-node/qcom,mdss_dsi_truly_1080p_video;
+	/delete-node/qcom,mdss_dsi_truly_1080p_cmd;
+	/delete-node/qcom,mdss_dsi_truly_720p_video;
+	/delete-node/qcom,mdss_dsi_truly_720p_cmd;
+	/delete-node/qcom,mdss_dsi_r69006_1080p_cmd;
+	/delete-node/qcom,mdss_dsi_r69006_1080p_video;
+	/delete-node/qcom,mdss_dsi_hx8394f_720p_video;
+	/delete-node/qcom,mdss_dsi_adv7533_1080p;
+	/delete-node/qcom,mdss_dsi_adv7533_720p;
+	/delete-node/qcom,mdss_dsi_hx8399c_hd_video;
+	/delete-node/qcom,mdss_dsi_nt35695b_truly_fhd_video;
+	/delete-node/qcom,mdss_dsi_nt35695b_truly_fhd_cmd;
+	/delete-node/qcom,mdss_dsi_icn9706_720_1440p_video;
+};
+&dsi_panel_pwr_supply {
+	/delete-node/qcom,panel-supply-entry@0;
+};
+
+&i2c_5 {
+	/delete-node/ nq@28;
+};
+
+&int_codec {
+	/delete-property/asoc-wsa-codec-names;
+	/delete-property/asoc-wsa-codec-prefixes;
+	/delete-property/msm-vdd-wsa-switch-supply;
+	/delete-property/qcom,msm-vdd-wsa-switch-voltage;
+	/delete-property/qcom,msm-vdd-wsa-switch-current;
+	/delete-property/qcom,cdc-us-euro-gpios;
+	/delete-property/qcom,cdc-us-eu-gpios;
+	/delete-property/qcom,quin-mi2s-gpios;
+	/delete-property/qcom,msm-micbias2-ext-cap;
+};
+&ext_codec {
+	/delete-property/qcom,quin-mi2s-gpios;
+};

@@ -1,0 +1,51 @@
+/**
+ * Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/*
+* device tree for zte
+*/
+/* Segment 1: Type-C Chips main DTS config */
+
+&i2c_5 {
+
+	pi5usb302@3D {
+		compatible = "ti,PI5USB30216D";
+		reg = <0x3D>;
+		status = "okay";
+		pinctrl-names = "PI5USB30216D_intpin", "PI5USB30216D_enpin_output0", "PI5USB30216D_enpin_output1";
+		pinctrl-0 = <&typec_intpin_cfg>;
+		pinctrl-1 = <&typec_enpin_output0>;
+		pinctrl-2 = <&typec_enpin_output1>;
+
+	eint_PI5USB30216D@9 {
+			compatible = "ti,PI5USB30216D_eint";
+			pi5usb,irq_gpio = <&tlmm 9 0x2>;
+		};
+	};
+
+	tusb320@67 {
+		compatible = "ti,tusb320";
+		reg = <0x67>;
+		status = "okay";
+		pinctrl-names = "tusb320_intpin", "tusb320_enpin_output0", "tusb320_enpin_output1";
+		pinctrl-0 = <&typec_intpin_cfg>;
+		pinctrl-1 = <&typec_enpin_output0>;
+		pinctrl-2 = <&typec_enpin_output1>;
+
+	eint_tusb320@9 {
+			compatible = "ti,tusb320_eint";
+			tusb320,irq_gpio = <&tlmm 9 0x2>;
+		};
+	};
+
+};

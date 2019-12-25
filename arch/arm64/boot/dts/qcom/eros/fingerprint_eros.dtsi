@@ -1,0 +1,105 @@
+/*for fingerprint config*/
+
+&tlmm {
+	fp_shutdown_active:active{
+		mux{
+			pins = "gpio124";
+			function = "gpio";
+		};
+		config{
+			pins = "gpio124";
+			drive-strength = <6>;
+			output-high;
+			bias-disable = <0>;
+		};
+	};
+
+	fp_shutdown_suspend:suspend{
+		mux{
+			pins = "gpio124";
+			function = "gpio";
+		};
+		config{
+			pins = "gpio124";
+			drive-strength = <2>;
+			output-low;
+			bias-disable = <0>;
+		};
+	};
+
+	goodix_irq_active: goodix_irq_active{
+		mux{
+			pins = "gpio48";
+			function = "gpio";
+		};
+		config{
+			pins = "gpio48";
+			drive-strength = <2>;
+			bias-disable; /* No PULL */
+		};
+	};
+	goodix_pwr_active: goodix_pwr_active {
+		mux{
+			pins = "gpio68";
+			function = "gpio";
+		};
+		config {
+			pins = "gpio68";
+			drive-strength = <2>;
+			bias-disable;
+			output-high;
+		};
+	};
+	silead_irq_active: silead_irq_active{
+		mux{
+			pins = "gpio48";
+			function = "gpio";
+		};
+		config{
+			pins = "gpio48";
+			drive-strength = <2>;
+			bias-disable; /* No PULL */
+		};
+	};
+};
+
+&soc {
+	goodix_fp {
+		status = "ok";
+		reg = <0>;
+		compatible = "goodix,fingerprint";
+		interrupt-parent = <&tlmm>;
+		interrupts = <48 0x0>;
+
+		pinctrl-names = "goodix_active", "goodix_suspend", "goodix_irq", "pwr_active";
+		pinctrl-0 = <&fp_shutdown_active>;
+		pinctrl-1 = <&fp_shutdown_suspend>;
+		pinctrl-2 = <&goodix_irq_active>;
+		pinctrl-3 = <&goodix_pwr_active>;
+
+		fp-gpio-reset = <&tlmm 124 0>;
+		fp-gpio-irq = <&tlmm 48 0>;
+		goodix,gpio_pwr = <&tlmm 68 0>;
+		interrupt-names = "goodix_wake_up";
+	};
+	silead_fp {
+		status = "ok";
+		reg = <1>;
+		compatible = "sil,silead_fp";
+		interrupt-parent = <&tlmm>;
+		interrupts = <48 0x0>;
+		spi-max-frequency = <4800000>;
+		qcom,qup-id = <7>;
+	    pinctrl-names = "spi_default", "spi_sleep", "spi_irq";
+		pinctrl-0 = <&fp_shutdown_active>;
+		pinctrl-1 = <&fp_shutdown_suspend>;
+		pinctrl-2 = <&silead_irq_active>;
+		rst-gpios = <&tlmm 124 0>;
+		irq-gpios = <&tlmm 48 0>;
+		avdd-gpios = <&tlmm 68 0>;
+		/*vddio-gpios = <&tlmm 68 0>;*/
+	};
+	zte_misc {
+		compatible = "zte-misc";
+	};
+};

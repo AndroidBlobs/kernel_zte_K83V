@@ -1,0 +1,78 @@
+/*for touchscreen and key*/
+
+&tlmm {
+	pmx_ts_int_init {
+		ts_int_init: ts_int_init {
+			mux {
+				pins = "gpio65";
+				function = "gpio";
+			};
+			config {
+				pins = "gpio65";
+				drive-strength = <2>;
+				bias-disable;
+			};
+		};
+	};
+
+	pmx_ts_reset_init {
+		ts_reset_init: ts_reset_init {
+			mux {
+				pins = "gpio64";
+				function = "gpio";
+			};
+			config {
+				pins = "gpio64";
+				drive-strength = <2>;
+				bias-pull-up;
+			};
+		};
+	};
+};
+
+&soc {
+	i2c@78b7000 {
+		status = "ok";
+		focaltech@38 {
+			compatible = "focaltech,fts_ts";
+			reg = <0x38>;
+			interrupt-parent = <&tlmm>;
+			interrupts = <65 0x2>;
+			vdd-supply = <&pm8937_l17>;
+			vcc_i2c-supply = <&pm8937_l6>;
+			pinctrl-names = "pmx_ts_active", "pmx_ts_suspend";
+			pinctrl-0 = <&ts_int_init &ts_reset_init>;
+			pinctrl-1 = <&ts_int_init &ts_reset_init>;
+			focaltech,reset-gpio = <&tlmm 64 0x0>;
+			focaltech,irq-gpio = <&tlmm 65 0x2002>;
+			focaltech,display-coords = <0 0 720 1440>;
+			focaltech,max-touch-number = <5>;
+		};
+	};
+
+	gpio_keys {
+		/delete-node/camera_focus;
+		/delete-node/camera_snapshot;
+
+		vol_down {
+			label = "volume_down";
+			gpios = <&tlmm 128 0x1>;
+			linux,input-type = <1>;
+			linux,code = <114>;
+			debounce-interval = <15>;
+			linux,can-disable;
+			gpio-key,wakeup;
+		};
+
+		vol_up {
+			label = "volume_up";
+			gpios = <&tlmm 91 0x1>;
+			linux,input-type = <1>;
+			linux,code = <115>;
+			debounce-interval = <15>;
+			linux,can-disable;
+			gpio-key,wakeup;
+		};
+	};
+
+};

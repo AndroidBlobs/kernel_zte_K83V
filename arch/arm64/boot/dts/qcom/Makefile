@@ -1,3 +1,6 @@
+ifneq ($(ZTE_BOARD_NAME),)
+	dts-dirs += $(ZTE_BOARD_NAME)
+else
 dtb-$(CONFIG_ARCH_QCOM)	+= apq8016-sbc.dtb msm8916-mtp.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8996-mtp.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= apq8096-db820c.dtb
@@ -628,6 +631,7 @@ dtb-$(CONFIG_ARCH_SDM429) += sdm429-mtp.dtb \
 	sda429-mtp.dtb \
 	sda429-cdp.dtb
 
+endif
 endif
 
 always		:= $(dtb-y)

@@ -1,0 +1,52 @@
+/*
+ * this file is ued to change qualcomm dtsi which can't be changed by overlay
+ * such as /delete-node/ /delete-property/ and alises
+ */
+
+
+&soc {
+	gpio_keys {
+		/delete-node/ camera_focus;
+		/delete-node/ camera_snapshot;
+	};
+};
+/ {
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/*add by ZTE_BOOT*/
+		ramoops_men: ramoops_region@b0000000 {
+			compatible = "removed_ramoops_memory";
+			no-map;
+			reg = <0 0xb0000000 0 0x200000>;
+		};
+	};
+/*
+	hall: hall {
+		compatible = "hall_ic";
+		status = "okay";
+		gpio_irq = <&tlmm 59 0>;
+		interrupt-parent = <&tlmm>;
+	};
+*/
+	hall_sensor {
+		compatible = "ah,hall_ic";
+		linux,min-uv = <1800000>;
+		linux,max-uv = <1800000>;
+		ah,gpio_irq = <&tlmm 59 0x00>;
+		linux,name = "hall_sensor";
+	};
+};
+
+&int_codec {
+	/delete-property/ asoc-wsa-codec-names;
+	/delete-property/ asoc-wsa-codec-prefixes;
+	/delete-property/ msm-vdd-wsa-switch-supply;
+	/delete-property/ qcom,msm-vdd-wsa-switch-voltage;
+	/delete-property/ qcom,msm-vdd-wsa-switch-current;
+	/delete-property/ qcom,cdc-us-euro-gpios;
+	/delete-property/ qcom,cdc-us-eu-gpios;
+	/delete-property/ qcom,quin-mi2s-gpios;
+};

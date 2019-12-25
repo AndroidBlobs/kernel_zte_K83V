@@ -1,0 +1,11 @@
+&usb_otg {
+	qcom,hsusb-otg-mode = <1>;
+	qcom,hsusb-otg-default-mode = <1>;
+	qcom,hsusb-otg-otg-control = <2>;
+};
+
+&int_codec {
+	qcom,msm-mbhc-hphl-swh = <1>;
+	qcom,msm-mbhc-gnd-swh = <1>;
+	qcom,msm-hs-micbias-type = "internal";
+};
