@@ -25,6 +25,11 @@ obj-$(CONFIG_INPUT_TABLET)	+= tablet/
 obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
 obj-$(CONFIG_INPUT_MISC)	+= misc/
 
+obj-$(CONFIG_FINGERPRINT_GOODIX) += fingerprint/goodix/
+obj-$(CONFIG_SILEAD_FP) += fingerprint/silead/
+obj-$(CONFIG_SILEAD_FP_PLATFORM) += fingerprint/silead/
+obj-$(CONFIG_FINGERPRINT_FPC)   += fingerprint/fpc/
+
 obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
 obj-$(CONFIG_INPUT_KEYRESET)	+= keyreset.o
 obj-$(CONFIG_INPUT_KEYCOMBO)	+= keycombo.o
