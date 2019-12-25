@@ -38,6 +38,7 @@ struct qg_dt {
 	int			vbatt_low_cold_mv;
 	int			vbatt_cutoff_mv;
 	int			iterm_ma;
+	int			iterm_ma_backup;
 	int			s2_fifo_length;
 	int			s2_vbat_low_fifo_length;
 	int			s2_acc_length;

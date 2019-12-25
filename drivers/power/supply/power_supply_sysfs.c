@@ -342,6 +342,11 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(fcc_stepper_enable),
 	POWER_SUPPLY_ATTR(cc_soc),
 	POWER_SUPPLY_ATTR(qg_vbms_mode),
+	POWER_SUPPLY_ATTR(recharge_soc_zte),
+	POWER_SUPPLY_ATTR(recharge_voltage_zte),
+	POWER_SUPPLY_ATTR(max_fcc_zte),
+	POWER_SUPPLY_ATTR(max_fcv_zte),
+	POWER_SUPPLY_ATTR(term_current_zte),
 	/* Local extensions of type int64_t */
 	POWER_SUPPLY_ATTR(charge_counter_ext),
 	/* Properties of type `const char *' */
