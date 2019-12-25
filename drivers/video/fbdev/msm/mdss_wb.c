@@ -219,4 +219,4 @@ static int __init mdss_wb_driver_init(void)
 	return rc;
 }
 
-module_init(mdss_wb_driver_init);
+late_initcall(mdss_wb_driver_init);

@@ -1892,6 +1892,29 @@ static int ion_debug_heap_show(struct seq_file *s, void *unused)
 	return 0;
 }
 
+/*get lostRam begin */
+unsigned long ion_heap_get(struct ion_heap *heap_ref)
+{
+	struct ion_heap *heap = heap_ref;
+	struct ion_device *dev = heap->dev;
+	struct rb_node *n;
+	size_t total_size = 0;
+
+	mutex_lock(&dev->buffer_lock);
+	for (n = rb_first(&dev->buffers); n; n = rb_next(n)) {
+		struct ion_buffer *buffer = rb_entry(n, struct ion_buffer,
+						     node);
+		if (buffer->heap->id != heap->id)
+			continue;
+		total_size += buffer->size;
+	}
+	mutex_unlock(&dev->buffer_lock);
+
+	return total_size;
+}
+
+/*get lostRam end */
+
 static int ion_debug_heap_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, ion_debug_heap_show, inode->i_private);

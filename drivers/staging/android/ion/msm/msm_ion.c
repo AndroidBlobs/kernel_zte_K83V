@@ -1087,6 +1087,24 @@ struct ion_heap *get_ion_heap(int heap_id)
 	return NULL;
 }
 
+/*get lostRam begin */
+extern unsigned long ion_heap_get(struct ion_heap *heap_ref);
+unsigned long ion_heap_used(void)
+{
+	struct ion_heap *heap;
+	unsigned long total_size = 0;
+	int i;
+
+	for (i = 0; i < num_heaps; i++) {
+		heap = heaps[i];
+		total_size += ion_heap_get(heap);
+	}
+
+	return total_size;
+}
+
+/*get lostRam end */
+
 static int msm_ion_probe(struct platform_device *pdev)
 {
 	static struct ion_device *new_dev;
