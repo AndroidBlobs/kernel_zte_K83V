@@ -1497,6 +1497,20 @@ process:
 	if (!sock_owned_by_user(sk)) {
 		if (!tcp_prequeue(sk, skb))
 			ret = tcp_v6_do_rcv(sk, skb);
+		if (tcp_socket_debugfs & TCP_IPV6_LOG_ENABLE) {    /*ZTE_LC_TCP_DEBUG, 20170418 improved*/
+				kuid_t uid = sk ? sk->sk_uid : GLOBAL_ROOT_UID;
+
+				if (!uid_valid(uid))
+					uid = GLOBAL_ROOT_UID;
+
+				pr_info("[IPv6] TCP RCV len=%d uid=%d, "
+					"Gpid:%d (%s) (%pI6 :%hu <- %pI6 :%hu)\n",
+					ntohs(skb->len),
+					uid.val,
+					current->group_leader->pid, current->group_leader->comm,
+					&hdr->daddr, ntohs(th->dest),
+					&hdr->saddr, ntohs(th->source));
+		}
 	} else if (tcp_add_backlog(sk, skb)) {
 		goto discard_and_relse;
 	}
