@@ -44,10 +44,15 @@
 #include <asm/siginfo.h>
 #include <asm/cacheflush.h>
 #include "audit.h"	/* audit_signal_info() */
+#include <stdbool.h>
 
 /*
  * SLAB caches for signal bits.
  */
+
+#ifndef ZTE_FEATURE_CGROUP_FREEZER
+#define ZTE_FEATURE_CGROUP_FREEZER               false
+#endif
 
 static struct kmem_cache *sigqueue_cachep;
 
@@ -1092,7 +1097,15 @@ static int send_signal(int sig, struct siginfo *info, struct task_struct *t,
 	from_ancestor_ns = si_fromuser(info) &&
 			   !task_pid_nr_ns(current, task_active_pid_ns(t));
 #endif
-
+/* ZSW_ADD FOR CPUFREEZER begin */
+#if ZTE_FEATURE_CGROUP_FREEZER == true
+	if (sig == SIGKILL) {
+		if (t->flags & PF_FROZEN) {
+			cgroup_task_unfree(t);
+		}
+	}
+#endif
+/* ZSW_ADD FOR CPUFREEZER end */
 	return __send_signal(sig, info, t, group, from_ancestor_ns);
 }
 
