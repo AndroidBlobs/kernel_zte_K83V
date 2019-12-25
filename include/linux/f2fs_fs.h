@@ -63,6 +63,11 @@
 #define MAX_PATH_LEN		64
 #define MAX_DEVICES		8
 
+/*ZTE_MODIFY add for compatibility*/
+#define ZTE_F2FS_VERSION "ZTE1.0"
+#define ZTE_F2FS_VERSION_LEN 8
+/*ZTE_MODIFY end*/
+
 /*
  * For superblock
  */
@@ -112,7 +117,15 @@ struct f2fs_super_block {
 	struct f2fs_device devs[MAX_DEVICES];	/* device list */
 	__le32 qf_ino[F2FS_MAX_QUOTAS];	/* quota inode numbers */
 	__u8 hot_ext_count;		/* # of hot file extension */
-	__u8 reserved[314];		/* valid reserved region */
+	__u8 reserved[298];		/* valid reserved region */
+	/*ZTE_MODIFY add reserve segments for root users and resuid and resgid support*/
+	__le32 s_resv_segments;
+	__le16 s_def_resuid;
+	__le16 s_def_resgid;
+	/*ZTE_MODIFY end*/
+	/*ZTE_MODIFY add for compatibility*/
+	__u8 zte_version[ZTE_F2FS_VERSION_LEN];
+	/*ZTE_MODIFY end*/
 } __packed;
 
 /*

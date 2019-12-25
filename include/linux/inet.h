@@ -54,4 +54,10 @@
 extern __be32 in_aton(const char *str);
 extern int in4_pton(const char *src, int srclen, u8 *dst, int delim, const char **end);
 extern int in6_pton(const char *src, int srclen, u8 *dst, int delim, const char **end);
+
+/*ZTE_LC_TCP_DEBUG, 20170418 improved*/
+#define TCP_IP_LOG_ENABLE			0x00000001
+#define TCP_IPV4V6_LOG_ENABLE		0x00000003
+#define TCP_IP_PM_LOG_ENABLE		0x00000004
+/*end ZTE_LC_TCP_DEBUG, 20170418 improved*/
 #endif	/* _LINUX_INET_H */

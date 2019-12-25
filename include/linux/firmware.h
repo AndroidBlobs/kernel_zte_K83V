@@ -38,6 +38,10 @@ struct builtin_fw {
 	static const struct builtin_fw __fw_concat(__builtin_fw,__COUNTER__) \
 	__used __section(.builtin_fw) = { name, blob, size }
 
+#if (defined(CONFIG_FW_LOADER) && defined(CONFIG_FATAL_FW_LOADER))
+int request_firmware_fatal(const struct firmware **fw, const char *name,
+		     struct device *device);
+#endif
 #if defined(CONFIG_FW_LOADER) || (defined(CONFIG_FW_LOADER_MODULE) && defined(MODULE))
 int request_firmware(const struct firmware **fw, const char *name,
 		     struct device *device);
