@@ -1089,4 +1089,15 @@ config SND_SOC_TPA6130A2
 	tristate "Texas Instruments TPA6130A2 headphone amplifier"
 	depends on I2C
 
+# ZTE_MODIFY begin. for smart pa mxp8990.
+config ZTE_FEATURE_NXP9890_SMART_PA_USE_QUIN
+	bool "zte add NXP smart pa chip tfa9880 use quin i2s interface"
+# ZTE_MODIFY end.
+config ZTE_USE_AMP_AW87318
+	tristate "zte add AW87318"
+# ZTE_MODIFY end.
+config ZTE_SMART_PA_CONNECT_TO_LINEOUT
+	bool "zte add indicate whether the smart pa is connected to lineout"
+config ZTE_USE_HEADPHONE_SWITCH
+	bool "zte add headphone switch"
 endmenu

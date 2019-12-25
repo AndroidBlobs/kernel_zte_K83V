@@ -221,6 +221,14 @@ snd-soc-max98504-objs := max98504.o
 snd-soc-tpa6130a2-objs := tpa6130a2.o
 snd-soc-tas2552-objs := tas2552.o
 
+# ZTE_MODIFY begin. for smart pa mxp8990.
+snd-soc-tfa9896-objs :=tfa9896/tfa98xx.o tfa9896/tfa_container.o tfa9896/tfa_dsp.o tfa9896/tfa_init.o tfa9896/tfa_debug.o
+# ZTE_MODIFY end.
+
+# ZTE_MODIFY begin. for smart pa mxp8990.
+obj-$(CONFIG_ZTE_FEATURE_NXP9890_SMART_PA_USE_QUIN)	+= snd-soc-tfa9896.o
+# ZTE_MODIFY end.
+
 obj-$(CONFIG_SND_SOC_88PM860X)	+= snd-soc-88pm860x.o
 obj-$(CONFIG_SND_SOC_AB8500_CODEC)	+= snd-soc-ab8500-codec.o
 obj-$(CONFIG_SND_SOC_AC97_CODEC)	+= snd-soc-ac97.o
