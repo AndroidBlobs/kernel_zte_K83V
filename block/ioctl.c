@@ -10,6 +10,7 @@
 #include <linux/pr.h>
 #include <asm/uaccess.h>
 
+extern int is_writeprotected(struct block_device *bdev);
 static int blkpg_ioctl(struct block_device *bdev, struct blkpg_ioctl_arg __user *arg)
 {
 	struct block_device *bdevp;
@@ -433,6 +434,9 @@ static int blkdev_roset(struct block_device *bdev, fmode_t mode,
 		unsigned cmd, unsigned long arg)
 {
 	int ret, n;
+#if !defined(ZTE_FEATURE_TF_PARTIAL)
+	int wp_status = 0;
+#endif
 
 	ret = __blkdev_driver_ioctl(bdev, mode, cmd, arg);
 	if (!is_unrecognized_ioctl(ret))
@@ -441,6 +445,19 @@ static int blkdev_roset(struct block_device *bdev, fmode_t mode,
 		return -EACCES;
 	if (get_user(n, (int __user *)arg))
 		return -EFAULT;
+#if !defined(ZTE_FEATURE_TF_PARTIAL)
+	pr_info("%s, partno = %d,n = %d\n", __func__, bdev->bd_part->partno, n);
+	if (bdev->bd_part->info && bdev->bd_part->info->volname[0] && (n == 0) &&
+		(!strncmp(bdev->bd_part->info->volname, "system", 6) || !strncmp(bdev->bd_part->info->volname,
+		"vendor", 6))) {
+		wp_status = is_writeprotected(bdev);
+		pr_info("%s,wp_status = %d\n", __func__, wp_status);
+		if (wp_status == 1) {
+			pr_info("%s, write protected is enabled, and return EPERM\n", __func__);
+			return -EPERM;
+		}
+	}
+#endif
 	set_device_ro(bdev, n);
 	return 0;
 }
