@@ -132,6 +132,18 @@ static int kgsl_pool_size_total(void)
 	return total;
 }
 
+/*get lostRam begin */
+unsigned long kgsl_pool_size_get(void)
+{
+	int i;
+	unsigned long total = 0;
+
+	for (i = 0; i < kgsl_num_pools; i++)
+		total += kgsl_pool_size(&kgsl_pools[i]);
+	return total;
+}
+/*get lostRam end */
+
 /*
  * This will shrink the specified pool by num_pages or its pool_size,
  * whichever is smaller.

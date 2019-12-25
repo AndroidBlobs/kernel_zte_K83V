@@ -28,6 +28,10 @@
 #include "adreno_perfcounter.h"
 #include "adreno_snapshot.h"
 
+#ifdef CONFIG_FATAL_FW_LOADER
+/* zte use ftmmode check function */
+#include <soc/qcom/socinfo.h>
+#endif
 /*
  * Define registers for a3xx that contain addresses used by the
  * cp parser logic
@@ -1581,7 +1585,12 @@ static int _load_firmware(struct kgsl_device *device, const char *fwfile,
 	const struct firmware *fw = NULL;
 	int ret;
 
+	#ifdef CONFIG_FATAL_FW_LOADER
+	/* be sure that each call will err fatal if failed */
+	ret = request_firmware_fatal(&fw, fwfile, device->dev);
+	#else
 	ret = request_firmware(&fw, fwfile, device->dev);
+	#endif
 
 	if (ret) {
 		KGSL_DRV_ERR(device, "request_firmware(%s) failed: %d\n",
@@ -1617,6 +1626,13 @@ int a3xx_microcode_read(struct adreno_device *adreno_dev)
 			adreno_dev->gpucore->pm4fw_name, &ptr, &len);
 
 		if (ret) {
+			#ifdef CONFIG_FATAL_FW_LOADER
+			/* zte add ignore fatal in ftmmode*/
+			if (socinfo_get_ftm_flag() == 1)
+				KGSL_DRV_ERR(device, "Ignore failed reading pm4 ucode %s\n",
+					   adreno_dev->gpucore->pm4fw_name);
+			else
+			#endif
 			KGSL_DRV_FATAL(device, "Failed to read pm4 ucode %s\n",
 					   adreno_dev->gpucore->pm4fw_name);
 			return ret;
@@ -1642,6 +1658,13 @@ int a3xx_microcode_read(struct adreno_device *adreno_dev)
 		int ret = _load_firmware(device,
 			adreno_dev->gpucore->pfpfw_name, &ptr, &len);
 		if (ret) {
+			#ifdef CONFIG_FATAL_FW_LOADER
+			/* zte add ignore fatal in ftmmode*/
+			if (socinfo_get_ftm_flag() == 1)
+				KGSL_DRV_ERR(device, "Ignore failed reading pfp ucode %s\n",
+					   adreno_dev->gpucore->pfpfw_name);
+			else
+			#endif
 			KGSL_DRV_FATAL(device, "Failed to read pfp ucode %s\n",
 					   adreno_dev->gpucore->pfpfw_name);
 			return ret;
