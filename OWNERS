@@ -1,0 +1,107 @@
+owners:
+- xiao.jianhua@zte.com.cn
+- cao.yaobinxa@zte.com.cn
+- wang.xiaomei1@zte.com.cn
+- li.jianqiang3@zte.com.cn
+- zhou.xuezan@zte.com.cn
+- yang.chaofeng@zte.com.cn
+- zhao.liqiang@zte.com.cn
+- li.bixuan@zte.com.cn
+- li.jiangshuo9@zte.com.cn
+- yan.qiaoling@zte.com.cn
+- wei.guohua@zte.com.cn
+- dou.mingming@zte.com.cn
+- si.lulu@zte.com.cn
+- wang.jianping3@zte.com.cn
+- zhu.xuekai@zte.com.cn
+- zhang.bo19@zte.com.cn
+- huang.yanjun1@zte.com.cn
+- li.xinghe3@zte.com.cn
+matchers:
+- exact: kernel/kernel-tests
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: kernel/vendorlk
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: kernel/tests
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: kernel/private/msm-zte-cw
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: kernel/msm-4.4
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: kernel/msm-4.14
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: kernel/msm-3.18
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: kernel/msm-3.10
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: kernel/msm
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: kernel/lk
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: kernel/configs
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: kernel/common
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: kernel/source
+  owners:
+  - cao.yaobinxa@zte.com.cn
+- exact: arch
+  owners:
+  - xiao.lei6@zte.com.cn
+- regex: arch/arm64/boot/dts/.*
+  owners:
+  - gao.yangyang3@zte.com.cn
+  - wang.junfeng5@zte.com.cn
+- regex: include/.*
+  owners:
+  - gao.yangyang3@zte.com.cn
+  - wang.junfeng5@zte.com.cn
+- regex: drivers/leds/.*
+  owners:
+  - gao.yangyang3@zte.com.cn
+  - wang.junfeng5@zte.com.cn
+- regex: drivers/media/platform/msm/.*
+  owners:
+  - gao.yangyang3@zte.com.cn
+  - wang.junfeng5@zte.com.cn
+- regex: kernel/printk/.*
+  owners:
+  - zhang.jiahao@zte.com.cn
+  - he.zhibin@zte.com.cn
+- regex: kernel/power/.*
+  owners:
+  - zhang.jiahao@zte.com.cn
+  - he.zhibin@zte.com.cn
+- exact: drivers/input
+  owners:
+  - wang.jianping3@zte.com.cn
+- exact: drivers/power
+  owners:
+  - wang.jianping3@zte.com.cn
+  - cui.xiaochuan@zte.com.cn
+  - zhou.teng@zte.com.cn
+  - jia.baofeng@zte.com.cn
+- regex: arch/arm64/boot/dts/qcom/.*
+  owners:
+  - wang.jianping3@zte.com.cn
+  - cui.xiaochuan@zte.com.cn
+  - zhou.teng@zte.com.cn
+  - jia.baofeng@zte.com.cn
+- regex: arch/arm64/.*
+  owners:
+  - zhang.jian43@zte.com.cn
+- regex: drivers/input/.*
+  owners:
+  - zhang.jian43@zte.com.cn
