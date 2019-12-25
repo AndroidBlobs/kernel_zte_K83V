@@ -1,0 +1,13 @@
+ccflags-y += -Idrivers/media/platform/msm/camera_v2
+ccflags-y += -Idrivers/media/platform/msm/camera_v2/common
+ccflags-y += -Idrivers/media/platform/msm/camera_v2/sensor/io
+ccflags-y += -Idrivers/media/platform/msm/camera_v2/sensor/cci
+obj-$(CONFIG_MSM_EEPROM) += zte_eeprom.o
+obj-$(CONFIG_MSM_EEPROM) += common_eeprom.o
+obj-$(CONFIG_S5K3L6_047_EEPROM) += s5k3l6_047_eeprom.o
+obj-$(CONFIG_S5K4H7_127_EEPROM) += s5k4h7_127_eeprom.o
+obj-$(CONFIG_S5K3L6_035_EEPROM) += s5k3l6_035_eeprom.o
+obj-$(CONFIG_OV13855_035_EEPROM) += ov13855_035_eeprom.o
+obj-$(CONFIG_OV13855_014_EEPROM) += ov13855_014_eeprom.o
+obj-$(CONFIG_GC8034_132_EEPROM) += gc8034_132_eeprom.o
+obj-$(CONFIG_HI846_131_EEPROM) += hi846_131_eeprom.o

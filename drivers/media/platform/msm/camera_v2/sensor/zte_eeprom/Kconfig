@@ -1,0 +1,67 @@
+config S5K3L6_047_EEPROM
+	bool "ZTE S5K3L6_047 Calibration support"
+	depends on MSMB_CAMERA
+	default n
+	help
+	  Enable support for ROM Interface for Calibration
+	  Provides interface for reading the Claibration data.
+	  and also provides support for writing data in case of FLASH ROM.
+	  Currently supports CCI  protocol
+config S5K4H7_127_EEPROM
+	bool "ZTE S5K4H7_127 Calibration support"
+	depends on MSMB_CAMERA
+	default n
+	help
+	  Enable support for ROM Interface for Calibration
+	  Provides interface for reading the Claibration data.
+	  and also provides support for writing data in case of FLASH ROM.
+	  Currently supports CCI  protocol
+config S5K3L6_035_EEPROM
+	bool "ZTE S5K3L6_035 Calibration support"
+	depends on MSMB_CAMERA
+	default n
+	help
+	  Enable support for ROM Interface for Calibration
+	  Provides interface for reading the Claibration data.
+	  and also provides support for writing data in case of FLASH ROM.
+	  Currently supports CCI  protocol
+
+config OV13855_035_EEPROM
+	bool "ZTE OV13855_035 Calibration support"
+	depends on MSMB_CAMERA
+	default n
+	help
+	  Enable support for ROM Interface for Calibration
+	  Provides interface for reading the Claibration data.
+	  and also provides support for writing data in case of FLASH ROM.
+	  Currently supports CCI  protocol
+
+config OV13855_014_EEPROM
+	bool "ZTE OV13855_014 Calibration support"
+	depends on MSMB_CAMERA
+	default n
+	help
+	  Enable support for ROM Interface for Calibration
+	  Provides interface for reading the Claibration data.
+	  and also provides support for writing data in case of FLASH ROM.
+	  Currently supports CCI  protocol
+
+config GC8034_132_EEPROM
+	bool "ZTE GC8034_132 Calibration support"
+	depends on MSMB_CAMERA
+	default n
+	help
+	  Enable support for ROM Interface for Calibration
+	  Provides interface for reading the Claibration data.
+	  and also provides support for writing data in case of FLASH ROM.
+	  Currently supports CCI  protocol
+
+config HI846_131_EEPROM
+	bool "ZTE HI846_131 Calibration support"
+	depends on MSMB_CAMERA
+	default n
+	help
+	  Enable support for ROM Interface for Calibration
+	  Provides interface for reading the Claibration data.
+	  and also provides support for writing data in case of FLASH ROM.
+	  Currently supports CCI  protocol
