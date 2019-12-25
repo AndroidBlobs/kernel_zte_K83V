@@ -85,6 +85,15 @@ config FW_LOADER
 	  require userspace firmware loading support, but a module built
 	  out-of-tree does.
 
+config FATAL_FW_LOADER
+	bool "Will be fatal if firmware loading failed"
+	depends on FW_LOADER
+	default n
+	help
+	  Say yes for firmware loading must be success, or
+	  a fatal error will happen.
+	  If unsure, say N here.
+
 config FIRMWARE_IN_KERNEL
 	bool "Include in-kernel firmware blobs in kernel binary"
 	depends on FW_LOADER

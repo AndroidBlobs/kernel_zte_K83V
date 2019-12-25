@@ -120,6 +120,13 @@ static inline long firmware_loading_timeout(void)
 #define FW_OPT_NO_WARN	(1U << 3)
 #define FW_OPT_NOCACHE	(1U << 4)
 
+#ifdef CONFIG_FATAL_FW_LOADER
+/* zte extend the flag to support fatal firmware behavior */
+#define FW_OPT_FATAL	(1U << 7)
+/* only wait for 5 seconds when fatal required */
+#define MAX_JIFFIES_FOR_FATAL	(5 * HZ)
+#endif
+
 struct firmware_cache {
 	/* firmware_buf instance will be added into the below list */
 	spinlock_t lock;
@@ -292,8 +299,13 @@ static void fw_free_buf(struct firmware_buf *buf)
 
 /* direct firmware loading support */
 static char fw_path_para[256];
+/* zte add path of vendor firmware under CONFIG micro */
 static const char * const fw_path[] = {
 	fw_path_para,
+#ifdef CONFIG_FATAL_FW_LOADER
+	"/vendor/firmware",
+	"/vendor/firmware/" UTS_RELEASE,
+#endif
 	"/lib/firmware/updates/" UTS_RELEASE,
 	"/lib/firmware/updates",
 	"/lib/firmware/" UTS_RELEASE,
@@ -359,6 +371,15 @@ fw_get_filesystem_firmware(struct device *device, struct firmware_buf *buf)
 			else
 				dev_warn(device, "loading %s failed with error %d\n",
 					 path, rc);
+
+			#ifdef CONFIG_FATAL_FW_LOADER
+			/* release buffer if allocated */
+			if (id != READING_FIRMWARE_PREALLOC_BUFFER
+				&& buf->data) {
+				vfree(buf->data);
+				buf->data = NULL;
+			}
+			#endif
 			continue;
 		}
 		dev_dbg(device, "direct-loading %s\n", buf->fw_id);
@@ -958,8 +979,21 @@ static int _request_firmware_load(struct firmware_priv *fw_priv,
 		timeout = MAX_JIFFY_OFFSET;
 	}
 
+	#ifdef CONFIG_FATAL_FW_LOADER
+	if (opt_flags & FW_OPT_FATAL)
+		timeout = wait_for_completion_timeout(
+			&buf->completion,
+			timeout);
+	else
+		timeout = wait_for_completion_killable_timeout(
+			&buf->completion,
+			timeout);
+	dev_warn(f_dev, "user space loaddbg ret %ld\n",
+		timeout);
+	#else
 	timeout = wait_for_completion_killable_timeout(&buf->completion,
 			timeout);
+	#endif
 	if (timeout == -ERESTARTSYS || !timeout) {
 		retval = timeout;
 		mutex_lock(&fw_lock);
@@ -1184,6 +1218,15 @@ _request_firmware(const struct firmware **firmware_p, const char *name,
 				 name, ret);
 		if (opt_flags & FW_OPT_USERHELPER) {
 			dev_dbg(device, "Falling back to user helper\n");
+			#ifdef CONFIG_FATAL_FW_LOADER
+			if (opt_flags & FW_OPT_FATAL) {
+				if (timeout > MAX_JIFFIES_FOR_FATAL)
+					timeout = MAX_JIFFIES_FOR_FATAL;
+				dev_warn(device,
+					"loading using %ld, %u\n",
+					timeout, opt_flags);
+			}
+			#endif
 			ret = fw_load_from_user_helper(fw, name, device,
 						       opt_flags, timeout);
 		}
@@ -1238,6 +1281,25 @@ request_firmware(const struct firmware **firmware_p, const char *name,
 	return ret;
 }
 EXPORT_SYMBOL(request_firmware);
+
+#ifdef CONFIG_FATAL_FW_LOADER
+/* zte extend the flag to support fatal firmware behavior */
+/* copy from above function request_firmware except additional flag */
+int
+request_firmware_fatal(const struct firmware **firmware_p, const char *name,
+		 struct device *device)
+{
+	int ret;
+
+	/* Need to pin this module until return */
+	__module_get(THIS_MODULE);
+	ret = _request_firmware(firmware_p, name, device, NULL, 0,
+				FW_OPT_UEVENT | FW_OPT_FALLBACK | FW_OPT_FATAL);
+	module_put(THIS_MODULE);
+	return ret;
+}
+EXPORT_SYMBOL(request_firmware_fatal);
+#endif
 
 /**
  * request_firmware_direct: - load firmware directly without usermode helper
