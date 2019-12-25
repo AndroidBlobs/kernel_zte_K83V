@@ -19,6 +19,12 @@
 #include <asm/pgtable.h>
 #include "internal.h"
 
+/*get lostRam begin */
+extern unsigned long ion_heap_used(void);
+extern unsigned long cma_used(void);
+extern unsigned long kgsl_pool_size_get(void);
+/*get lostRam end */
+
 void __attribute__((weak)) arch_report_meminfo(struct seq_file *m)
 {
 }
@@ -153,6 +159,9 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 	show_val_kb(m, "CmaFree:        ",
 		    global_page_state(NR_FREE_CMA_PAGES));
 #endif
+	show_val_kb(m, "Lost_Ion:       ", ion_heap_used() >> 10);
+	show_val_kb(m, "Lost_Cma:       ", cma_used());
+	show_val_kb(m, "Lost_KgslPool:  ", kgsl_pool_size_get());
 
 	hugetlb_report_meminfo(m);
 
