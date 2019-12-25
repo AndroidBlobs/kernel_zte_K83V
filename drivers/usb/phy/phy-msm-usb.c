@@ -626,6 +626,96 @@ static void ulpi_init(struct msm_otg *motg)
 	}
 }
 
+/* for usb eye diagram test */
+static int param_override_testing;
+static int param_override[] = {
+	-1, -1,
+	-1, -1,
+	-1, -1,
+	-1, -1,
+	-1
+};
+
+static void param_override_init(struct msm_otg *motg)
+{
+	/*struct msm_otg_platform_data *pdata = motg->pdata;*/
+	/*seq = pdata->phy_init_seq_override if need*/
+	int *seq = NULL;
+
+	if (param_override_testing) {
+		seq = param_override;
+		motg->pdata->phy_init_seq = param_override;
+	}
+
+	if (!seq) {
+		dev_info(motg->phy.dev, "usb %s param_override_init is null, skip\n", __func__);
+		return;
+	}
+	while (seq[0] >= 0) {
+		dev_info(motg->phy.dev, "usb param_override_init: write 0x%02x to 0x%02x\n",
+				seq[0], seq[1]);
+		ulpi_write(&motg->phy, seq[0], seq[1]);
+		seq += 2;
+	}
+}
+
+static int diagram_param_write(const char *val, const struct kernel_param *kp)
+{
+	int err, size, i = 0;
+	char buf[256] = {0};
+	char *b;
+	char *value;
+	unsigned long tmp;
+	struct msm_otg *motg = the_msm_otg;
+
+	dev_info(motg->phy.dev, "usb diagram_param_write val = %s\n", val);
+
+	size = sizeof(param_override)-1;
+	strlcpy(buf, val, sizeof(buf));
+	b = strim(buf);
+	while (b) {
+		value = strsep(&b, ",");
+		if (value) {
+			err = kstrtoul(value, 16, &tmp);
+			if (err) {
+				dev_err(motg->phy.dev, "%s kstrtoul failed\n", __func__);
+				param_override_testing = 0;
+				goto out;
+			}
+			if (i < size)
+				param_override[i] = (int)tmp;
+			i++;
+			if (!param_override_testing)
+				param_override_testing = 1;
+		}
+	}
+
+	param_override_init(motg);
+
+out:
+	return strlen(val);
+}
+
+static int diagram_param_read(char *buf, const struct kernel_param *kp)
+{
+	int i = 0;
+	u32 reg[4] = {0x80, 0x81, 0x82, 0x83};
+	char *buff = buf;
+	struct msm_otg *motg = the_msm_otg;
+
+	for (i = 0; i < 4; i++) {
+		buff += scnprintf(buff, PAGE_SIZE,
+			"REG[0x%02x]=0x%02x,", reg[i], ulpi_read(&motg->phy, reg[i]));
+	}
+	if (buff != buf)
+		*(buff-1) = '\n';
+	return buff - buf;
+
+}
+
+module_param_call(diagram_param, diagram_param_write, diagram_param_read,
+		  NULL, 0664);
+MODULE_PARM_DESC(diagram_param, "USB eye diagram_param");
 static int msm_otg_phy_clk_reset(struct msm_otg *motg)
 {
 	int ret;
@@ -1894,6 +1984,61 @@ static int msm_otg_notify_chg_type(struct msm_otg *motg)
 	return ret;
 }
 
+/* Usb online lpm test requirement, 2/5 */
+
+static void msm_otg_set_vbus_state(int online);
+static int forge_usb_offline = 0;
+
+static ssize_t set_usb_online_fn(struct device *dev, struct device_attribute *attr,
+								const char *buf, size_t count)
+{
+	int online;
+
+	if (kstrtoint(buf, 10, &online) < 0)
+		return -EINVAL;
+
+	online = !!online;
+	pr_info("%s, online : %d\n", __func__, online);
+	msm_otg_set_vbus_state(online);
+	forge_usb_offline = !online;
+	return 1;
+}
+
+static DEVICE_ATTR(set_usb_online, S_IWUSR, NULL, set_usb_online_fn);
+
+static struct device_attribute *lpm_test_attributes[] = {
+	&dev_attr_set_usb_online,
+	NULL
+};
+
+static int lpm_test_create_device(struct msm_otg *motg)
+{
+	struct device_attribute **attrs = lpm_test_attributes;
+	struct device_attribute *attr;
+	int err;
+
+	pr_debug("%s\n", __func__);
+	motg->lpm_test_class = class_create(THIS_MODULE, "charger");
+	if (IS_ERR(motg->lpm_test_class))
+		return PTR_ERR(motg->lpm_test_class);
+
+	motg->lpm_test_dev = device_create(motg->lpm_test_class, NULL, 0, NULL, "test");
+	if (IS_ERR(motg->lpm_test_dev))
+		return PTR_ERR(motg->lpm_test_dev);
+
+	dev_set_drvdata(motg->lpm_test_dev, motg);
+
+	while ((attr = *attrs++)) {
+		err = device_create_file(motg->lpm_test_dev, attr);
+		if (err) {
+			device_destroy(motg->lpm_test_class, 0);
+			return err;
+		}
+	}
+	return 0;
+}
+
+
 static void msm_otg_notify_charger(struct msm_otg *motg, unsigned int mA)
 {
 	struct usb_gadget *g = motg->phy.otg->gadget;
@@ -1901,6 +2046,10 @@ static void msm_otg_notify_charger(struct msm_otg *motg, unsigned int mA)
 	int psy_type;
 
 	if (g && g->is_a_peripheral)
+		return;
+
+	/* Usb online lpm test requirement, 3/5 */
+	if (forge_usb_offline)
 		return;
 
 	dev_dbg(motg->phy.dev, "Requested curr from USB = %u\n", mA);
@@ -2187,7 +2336,19 @@ static int msm_otg_set_host(struct usb_otg *otg, struct usb_bus *host)
 
 	return 0;
 }
+static void motg_uevent(struct msm_otg *motg, int state)
+{
+	char *online[2] = { "USB_STATE=ONLINE", NULL };
+	char *offline[2] = { "USB_STATE=OFFLINE", NULL };
+	char **uevent_envp = NULL;
 
+	uevent_envp = state ? online : offline;
+
+	if (uevent_envp) {
+		kobject_uevent_env(&motg->lpm_test_dev->kobj, KOBJ_CHANGE, uevent_envp);
+		pr_info("%s: sent uevent %s\n", __func__, uevent_envp[0]);
+	}
+}
 static void msm_otg_start_peripheral(struct usb_otg *otg, int on)
 {
 	struct msm_otg *motg = container_of(otg->usb_phy, struct msm_otg, phy);
@@ -2262,6 +2423,7 @@ static void msm_otg_start_peripheral(struct usb_otg *otg, int on)
 			}
 		}
 	}
+	motg_uevent(motg, on);
 	msm_otg_dbg_log_event(&motg->phy, "PM RT: StartPeri PUT",
 				     get_pm_runtime_counter(motg->phy.dev), 0);
 	pm_runtime_mark_last_busy(otg->usb_phy->dev);
@@ -3655,6 +3817,9 @@ static DEVICE_ATTR(dpdm_pulldown_enable, 0644,
 static int msm_otg_vbus_notifier(struct notifier_block *nb, unsigned long event,
 				void *ptr)
 {
+	/* Usb online lpm test requirement, 4/5 */
+	if (forge_usb_offline)
+		forge_usb_offline = 0;
 	msm_otg_set_vbus_state(!!event);
 
 	return NOTIFY_DONE;
@@ -4581,6 +4746,12 @@ static int msm_otg_probe(struct platform_device *pdev)
 	motg->pm_notify.notifier_call = msm_otg_pm_notify;
 	register_pm_notifier(&motg->pm_notify);
 	msm_otg_dbg_log_event(phy, "OTG PROBE", motg->caps, motg->lpm_flags);
+
+	/* Usb online lpm test requirement, 5/5 */
+	ret = lpm_test_create_device(motg);
+	if (ret) {
+		dev_dbg(&pdev->dev, "fail to setup lpm_test_device\n");
+	}
 
 	return 0;
 

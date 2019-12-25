@@ -1708,6 +1708,46 @@ static int fill_ext_prop(struct usb_configuration *c, int interface, u8 *buf)
 	return count;
 }
 
+/* For get device info */
+#define SUA_BUILD_ID_AND_PHONE_ID 0x01
+#define SUA_DEVICE_INFO_REQUEST   0xA6
+#define SUA_MAX_INFO_LEN          32
+
+struct device_info_type {
+	char build_id[SUA_MAX_INFO_LEN];
+	char phone_id_cipher[SUA_MAX_INFO_LEN];
+	char product_name[SUA_MAX_INFO_LEN];
+	char battery_capacity[SUA_MAX_INFO_LEN];
+};
+
+static struct device_info_type device_info;
+module_param_string(build_id, device_info.build_id, SUA_MAX_INFO_LEN, 0600);
+MODULE_PARM_DESC(build_id, "build_id string");
+module_param_string(product_name, device_info.product_name, SUA_MAX_INFO_LEN, 0600);
+MODULE_PARM_DESC(product_name, "product_name string");
+module_param_string(phone_id, device_info.phone_id_cipher, SUA_MAX_INFO_LEN, 0600);
+MODULE_PARM_DESC(phone_id, "phone_id_cipher string");
+module_param_string(battery_capacity, device_info.battery_capacity, SUA_MAX_INFO_LEN, 0600);
+MODULE_PARM_DESC(battery_capacity, "battery_capacity string");
+
+static int handle_device_info_request(struct usb_request *req, u16 w_value, u16 w_length)
+{
+	int value = -EOPNOTSUPP;
+
+	if (w_value != SUA_BUILD_ID_AND_PHONE_ID) {
+		pr_err("%s, invalid w_value\n", __func__);
+		return value;
+	}
+	if (device_info.build_id[0] == '\0') {
+		pr_err("%s, invalid device_info\n", __func__);
+		return value;
+	}
+	value = min_t(u16, (u16)sizeof(device_info), w_length);
+	memcpy(req->buf, &device_info, value);
+	return value;
+}
+/* end */
+
 /*
  * The setup() callback implements all the ep0 functionality that's
  * not handled lower down, in hardware or the hardware driver(like
@@ -2079,6 +2119,28 @@ unknown:
 			"non-core control req%02x.%02x v%04x i%04x l%d\n",
 			ctrl->bRequestType, ctrl->bRequest,
 			w_value, w_index, w_length);
+
+		/* For get device info */
+		if (ctrl->bRequestType == (USB_DIR_IN|USB_TYPE_VENDOR) &&
+		    ctrl->bRequest == SUA_DEVICE_INFO_REQUEST) {
+			value = handle_device_info_request(req, w_value, w_length);
+			if (value >= 0) {
+				req->length = value;
+				req->context = cdev;
+				req->zero = value < w_length;
+				value = composite_ep0_queue(cdev, req,
+							    GFP_ATOMIC);
+				if (value < 0) {
+					DBG(cdev, "ep_queue --> %d\n", value);
+					req->status = 0;
+					if (value != -ESHUTDOWN)
+						composite_setup_complete(
+							gadget->ep0, req);
+				}
+			}
+			return value;
+		}
+		/* end */
 
 		/* functions always handle their interfaces and endpoints...
 		 * punt other recipients (other, WUSB, ...) to the current
