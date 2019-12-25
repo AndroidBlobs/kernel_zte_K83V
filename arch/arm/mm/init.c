@@ -33,7 +33,7 @@
 #include <asm/system_info.h>
 #include <asm/tlb.h>
 #include <asm/fixmap.h>
-
+#include <soc/qcom/vendor/sdlog_mem_reserve.h>
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
 
@@ -271,6 +271,7 @@ void __init arm_memblock_init(const struct machine_desc *mdesc)
 
 	early_init_fdt_reserve_self();
 	early_init_fdt_scan_reserved_mem();
+	sdlog_memory_reserve();
 
 	/* reserve memory for DMA contiguous allocations */
 	dma_contiguous_reserve(arm_dma_limit);

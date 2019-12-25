@@ -1297,3 +1297,7 @@ source "arch/arm64/crypto/Kconfig"
 endif
 
 source "lib/Kconfig"
+config ENABLE_POWER_REASON_NODE
+	bool "Power reason node"
+	help
+	  Power reason node.
